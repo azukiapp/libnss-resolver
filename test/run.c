@@ -58,7 +58,8 @@ static void group_setup(void **state) {
 
 
     // Remove mock
-    mock_resolver_clean(NSSRS_DEFAULT_FOLDER, _state->domain);
+    int clean_resolver = mock_resolver_clean(NSSRS_DEFAULT_FOLDER, _state->domain);
+    debug("Clean domain %s in %s: %d", _state->domain, NSSRS_DEFAULT_FOLDER, clean_resolver);
 
     // Save in state
     *state = _state;
@@ -96,9 +97,9 @@ static void nssrs_getfile_by_sufix_test(void **state) {
     char *data, *file, *sub;
 
     // Simple
-    char *resolve_dev = "resolver.dev";
+    char *test_resolver = "test.resolver";
     data = nssrs_getfile_by_sufix(_state->fixtures, _state->domain);
-    file = nssrs_str_join('/', _state->fixtures, resolve_dev);
+    file = nssrs_str_join('/', _state->fixtures, test_resolver);
     assert_string_equal(data, file);
     free(data);
     free(file);
@@ -123,7 +124,7 @@ static void nssrs_getfile_by_sufix_test(void **state) {
 
     sub  = nssrs_str_join('.', "ub", _state->domain);
     data = nssrs_getfile_by_sufix(_state->fixtures, sub);
-    file = nssrs_str_join('/', _state->fixtures, "resolver.dev");
+    file = nssrs_str_join('/', _state->fixtures, "test.resolver");
     assert_string_equal(data, file);
     free(data);
     free(file);
@@ -139,7 +140,7 @@ static void notfound_sufix_test(void **state) {
 static void nssrs_parse_routes_test(void **state) {
     state_type *_state = *state;
     char *servers = "127.0.0.1,[fE80::1]:5354,192.168.100.1001:49154";
-    char *file = nssrs_str_join('/', _state->fixtures, "resolver.dev");
+    char *file = nssrs_str_join('/', _state->fixtures, "test.resolver");
     struct resolver_file *rf= nssrs_parse_routes(file);
     free(file);
 

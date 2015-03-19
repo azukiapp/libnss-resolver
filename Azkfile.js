@@ -3,7 +3,7 @@
  */
 
 var envs = {
-  DNS_DOMAIN: "resolver.dev",
+  DNS_DOMAIN: "test.resolver",
   DNS_IP: "127.0.0.2",
   TERM: env.TERM,
   BUILD_FOLDER: "/azk/build",
@@ -52,6 +52,3 @@ systems({
     envs: envs,
   },
 });
-
-
-

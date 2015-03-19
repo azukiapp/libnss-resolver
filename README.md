@@ -127,7 +127,7 @@ $ scons run-test -Q [define=DEBUG] [valgrind="valgrind options"]
 # to install in azk instance
 $ scons local-install
 # and test with:
-$ ping resolver.dev
+$ ping test.resolver
 ```
 
 ## References
