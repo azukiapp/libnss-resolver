@@ -12,16 +12,16 @@ var envs = {
 var build_system = function(image) {
   return {
     depends: ["dns"],
-    image: image,
+    image: { docker: image },
     workdir: "/azk/#{manifest.dir}",
     command: "# command to run app",
     shell: "/bin/bash",
-    mount_folders: {
-      '.': "/azk/#{manifest.dir}",
-      './mocker/nsswitch.conf': "/etc/nsswitch.conf",
-      './mocker/resolver': "/etc/resolver",
+    mounts: {
+      "/azk/#{manifest.dir}" : '.',
+      "/etc/nsswitch.conf"   : './mocker/nsswitch.conf',
+      "/etc/resolver"        : './mocker/resolver',
+      "/azk/build"           : persistent('build-#{system.name}'),
     },
-    persistent_folders: ["/azk/build"],
     envs: envs,
   };
 }
@@ -33,17 +33,17 @@ systems({
   fedora20: build_system("azukiapp/libnss-resolver:fedora20"),
 
   package: {
-    image: "azukiapp/fpm",
+    image: { docker: "azukiapp/fpm" },
     workdir: "/azk/#{manifest.dir}",
     shell: "/bin/bash",
-    mount_folders: {
-      '.': '/azk/#{manifest.dir}',
+    mounts: {
+      "/azk/#{manifest.dir}" : '.',
     },
     envs: envs,
   },
 
   dns: {
-    image: "azukiapp/azktcl:0.0.2",
+    image: { docker: "azukiapp/azktcl:0.0.2" },
     command: "dnsmasq --no-daemon --address=/$DNS_DOMAIN/$DNS_IP",
     wait: false,
     ports: {
