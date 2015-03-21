@@ -21,6 +21,7 @@ var build_system = function(image) {
       "/etc/nsswitch.conf"   : './mocker/nsswitch.conf',
       "/etc/resolver"        : './mocker/resolver',
       "/azk/build"           : persistent('build-#{system.name}'),
+      "/azk/lib"             : '/usr/lib'
     },
     envs: envs,
   };

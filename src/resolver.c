@@ -54,15 +54,21 @@ static char **copy_list(char **list) {
 }
 
 void nssrs_copy_hostent(struct hostent *from, struct hostent *to) {
-    to->h_name = malloc(sizeof(char *) * strlen(from->h_name));
-
-    if (to->h_name != NULL) {
-        sprintf(to->h_name, "%s", from->h_name);
+    if (from->h_name != NULL) {
+        to->h_name = strdup(from->h_name);
         to->h_addrtype  = from->h_addrtype;
         to->h_length    = from->h_length;
         to->h_aliases   = copy_list(from->h_aliases);
         to->h_addr_list = copy_list(from->h_addr_list);
     }
+}
+
+void nssrs_init_hostent(struct hostent *h) {
+    h->h_name      = NULL;
+    h->h_addrtype  = 0;
+    h->h_length    = 0;
+    h->h_aliases   = NULL;
+    h->h_addr_list = NULL;
 }
 
 static void callback(void *arg, int status, int timeouts, struct hostent *from) {
@@ -110,6 +116,7 @@ struct hostent *nssrs_resolver_by_servers(char *name, char *nameserver) {
 
     // Wait resolver
     results = malloc(sizeof(struct hostent));
+    nssrs_init_hostent(results);
     ares_gethostbyname(channel, name, AF_INET, &callback, results);
     wait_ares(channel);
     ares_destroy(channel);

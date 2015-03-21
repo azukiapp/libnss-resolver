@@ -82,6 +82,10 @@ _nss_resolver_gethostbyname2_r (const char *name,
     if (!hosts || hosts->h_name == NULL) {
         *errnop = ENOENT;
         *h_errnop = HOST_NOT_FOUND;
+        if (hosts) {
+            ares_free_hostent(hosts);
+        }
+        debug("Host not found");
         return NSS_STATUS_NOTFOUND;
     }
 

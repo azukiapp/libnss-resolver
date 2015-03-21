@@ -19,6 +19,12 @@
 
 #include "helpers.h"
 
+static void remove_mock(state_type *_state) {
+    // Remove mock
+    int clean_resolver = mock_resolver_clean(NSSRS_DEFAULT_FOLDER, _state->domain);
+    debug("Clean domain %s in %s: %d", _state->domain, NSSRS_DEFAULT_FOLDER, clean_resolver);
+}
+
 // Tests setup and teardown
 static void group_setup(void **state) {
     const char *port = getenv("TEST_DNS_PORT");
@@ -56,10 +62,7 @@ static void group_setup(void **state) {
     _state->servers = malloc(size);
     snprintf(_state->servers, size - 1, "%s:%s", ip, port);
 
-
-    // Remove mock
-    int clean_resolver = mock_resolver_clean(NSSRS_DEFAULT_FOLDER, _state->domain);
-    debug("Clean domain %s in %s: %d", _state->domain, NSSRS_DEFAULT_FOLDER, clean_resolver);
+    remove_mock(_state);
 
     // Save in state
     *state = _state;
@@ -67,6 +70,8 @@ static void group_setup(void **state) {
 
 static void group_teardown(void **state) {
     state_type *_state = *state;
+
+    remove_mock(_state);
 
     free(_state->servers);
     free(_state);
@@ -250,7 +255,7 @@ static void gethostbyname_name_test(void **state) {
 }
 
 int main(void) {
-    printf("\nRunning the testes...\n\n");
+    printf("\nRunning tests...\n\n");
     const UnitTest tests[] = {
         // setup
         group_test_setup(group_setup),

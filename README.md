@@ -34,7 +34,7 @@ $ azk shell [so] -t -c "scons run-test"
 $ azk shell [so] -t -c "scons run-test -Q define=DEBUG"
 
 # install local
-$ azk shell [so] --mount /usr/lib:/azk/lib -c "scons install"
+$ azk shell [so] -c "scons install"
 ```
 
 Now you can add the resolver-nss in a resolution pipe:
@@ -88,23 +88,23 @@ hosts: files resolver mdns4_minimal [NOTFOUND=return] dns mdns4 resolver
 After installing you can create many `suffix` zones in `/etc/resolver/`, like:
 
 ```bash
-$ echo "nameserver 127.0.0.1:5353" | sudo tee -a /etc/resolver/test.dev
+$ echo "nameserver 127.0.0.1:5353" | sudo tee -a /etc/resolver/test.resolver
 ```
 
 Installing dnsmasq is a good way to test it:
 
 ```bash
 $ sudo yum install dnsmasq
-$ dnsmasq --bind-interfaces -p 5353 --no-daemon --address=/test.dev/127.0.0.1
+$ dnsmasq --bind-interfaces -p 5353 --no-daemon --address=/test.resolver/127.0.0.1
 ```
 
 Now you can try this:
 
 ```bash
 # ping sufix
-$ ping test.dev
+$ ping test.resolver
 # or any "subdomain"
-$ ping any.test.dev
+$ ping any.test.resolver
 ```
 
 ## Test and build (azk only)
