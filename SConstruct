@@ -94,7 +94,7 @@ env['ENV']['VALGRIND_OPTS']   = ARGUMENTS.get('valgrind', '')
 env['ENV']['LD_LIBRARY_PATH'] = '/usr/local/lib'
 
 test_bin = "%s/test" % build_dir
-test_app = env.Program(test_bin, ["src/resolver.c", "src/files.c", Glob("test/*.c")] + so_local + cmocka,
+test_app = env.Program(test_bin, so_local + cmocka + ["src/resolver.c", "src/files.c", Glob("test/*.c")],
                       LIBS      = [cmocka, cares],
                       CFLAGS    = ("%s -I/usr/local/include -I%s -I%s/include" % (DEBUG, cares_folder, cmocka_folder[0])),
                       LINKFLAGS = "-Wl,--no-as-needed -lrt -lcmocka")

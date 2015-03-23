@@ -27,6 +27,9 @@ $ cd libnss-resolver
 # [so] options: ubuntu12, ubuntu14, fedora20
 $ azk shell [so]
 
+
+# using ubuntu12 or ubuntu14 as [so]:
+
 # run tests
 $ azk start dns # Run a mock dns server for testing
 $ azk shell [so] -t -c "scons run-test"
@@ -35,6 +38,18 @@ $ azk shell [so] -t -c "scons run-test -Q define=DEBUG"
 
 # install local
 $ azk shell [so] -c "scons install"
+
+
+# using fedora20 as [so]:
+
+# run tests
+$ azk start dns # Run a mock dns server for testing
+$ azk shell [so] -t -c "scons run-test -Q prefix=/usr/lib64"
+# or debug
+$ azk shell [so] -t -c "scons run-test -Q define=DEBUG -Q prefix=/usr/lib64"
+
+# install local
+$ azk shell [so] -c "scons install -Q prefix=/usr/lib64"
 ```
 
 Now you can add the resolver-nss in a resolution pipe:
@@ -65,6 +80,8 @@ $ cd libnss-resolver
 
 # build
 $ scons install
+# or, if you're using Fedora as SO
+$ scons install -Q prefix=/usr/lib64
 ```
 
 Now you can add the resolver-nss in a resolution pipe:
@@ -117,16 +134,30 @@ All of these tools are actually available behind the [azk][azk]. So just use the
 $ azk start dns
 # [so] options: ubuntu12, ubuntu14, fedora20
 $ azk shell [so] -t -c "scons local-install"
+# or, if [so] == fedora20
+$ azk shell [so] -t -c "scons local-install -Q prefix=/usr/lib64"
 ```
 
 After that, the following scons targets are available:
 
 ```bash
-# to build and run testes
+# using ubuntu12 or ubuntu14 as so
+
+# build and run tests
 $ scons run-test -Q [define=DEBUG] [valgrind="valgrind options"]
-# to install in azk instance
+# install in azk instance
 $ scons local-install
-# and test with:
+# test:
+$ ping test.resolver
+
+
+# using fedora20 as so
+
+# build and run tests
+$ scons run-test -Q prefix=/usr/lib64 -Q [define=DEBUG] [valgrind="valgrind options"]
+# install in azk instance
+$ scons local-install -Q prefix=/usr/lib64
+# test:
 $ ping test.resolver
 ```
 

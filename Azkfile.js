@@ -18,7 +18,7 @@ var build_system = function(image) {
     shell: "/bin/bash",
     mounts: {
       "/azk/#{manifest.dir}" : '.',
-      "/etc/nsswitch.conf"   : './mocker/nsswitch.conf',
+      "/etc/nsswitch.conf"   : './mocker/#{system.name}-nsswitch.conf',
       "/etc/resolver"        : './mocker/resolver',
       "/azk/build"           : persistent('build-#{system.name}'),
       "/azk/lib"             : '/usr/lib'
