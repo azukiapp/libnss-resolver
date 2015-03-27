@@ -18,5 +18,7 @@ remove_resolver() {
     sed -i -re "s/(hosts:.*)\s{1,}resolver($|\s\w)(.*)/\1\2\3/; s/\s*$//;" /etc/nsswitch.conf
 }
 
-remove_resolver
-
+# Rpm call it even if it is update
+if [ ! -e /etc/redhat-release ] || [ "$1" = 0 ]; then
+    remove_resolver $1
+fi
