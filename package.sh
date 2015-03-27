@@ -3,10 +3,10 @@
 PKG="libnss-resolver"
 URL="https://github.com/azukiapp/libnss-resolver"
 DESCRIPTION="Adds Linux support to specify nameservers in a specific domain suffix context"
-VERSION=${PKG_VERSION:-`git describe --abbrev=0 --tags | awk '{ print $gsub(/^v/, "") }'`}
+: ${PKG_VERSION:=`git describe --abbrev=0 --tags | sed "s/v//g"`}
 
-LICENSE="Apache 2.0"
-VENDOR="Azuki (http://azukiapp.com)"
+   LICENSE="Apache 2.0"
+    VENDOR="Azuki (http://azukiapp.com)"
 MAINTAINER="Everton Ribeiro <everton@azukiapp.com>"
 
 usage() {
@@ -53,32 +53,31 @@ azk_shell() {
       usage
   esac
 
-  echo "Building $pkg_type for $PKG, $VERSION version..."
+  echo "Building $pkg_type for $PKG, $PKG_VERSION version..."
 
 # build!
 
   destdir="build/${system}"
-  ( cd Dockerfiles/${system}; adocker build -t azukiapp/libnss-resolver:${system} . )
   azk_shell $system "scons pack -Q pack_prefix=$destdir/$prefix"
   cp -Rf src/samples/* $destdir/
 
 # package!
 
   azk_shell package "fpm \
-      -s dir -t ${pkg_type} \
-      -n ${PKG} -v ${VERSION} \
-      --provides ${PKG}\
-      --provides ${system}-${PKG}\
-      --url \"${URL}\" \
-      --description \"${DESCRIPTION}\" \
-      --vendor \"${VENDOR}\" \
-      --license \"${LICENSE}\" \
-      --category \"admin\" \
-      --depends 'sed' \
-      --depends 'grep' \
-      --maintainer \"${MAINTAINER}\" \
-      ${fpm_extra_options} \
-      --after-install scripts/after-install.sh \
-      --after-remove scripts/after-remove.sh \
-      -f -p ${destdir} -C ${destdir} ${prefix} etc \
+    -s dir -t ${pkg_type} \
+    -n ${PKG} -v ${PKG_VERSION} \
+    --provides ${PKG}\
+    --provides ${system}-${PKG}\
+    --url \"${URL}\" \
+    --description \"${DESCRIPTION}\" \
+    --vendor \"${VENDOR}\" \
+    --license \"${LICENSE}\" \
+    --category \"admin\" \
+    --depends 'sed' \
+    --depends 'grep' \
+    --maintainer \"${MAINTAINER}\" \
+    ${fpm_extra_options} \
+    --after-install scripts/after-install.sh \
+    --after-remove scripts/after-remove.sh \
+    -f -p ${destdir} -C ${destdir} ${prefix} etc \
   "

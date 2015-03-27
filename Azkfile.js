@@ -9,29 +9,33 @@ var envs = {
   BUILD_FOLDER: "/azk/build",
 }
 
-var build_system = function(image) {
-  return {
+// Adds the systems that shape your system
+systems({
+  ubuntu14: {
     depends: ["dns"],
-    image: { docker: image },
+    image: { dockerfile: "./Dockerfiles/ubuntu14" },
     workdir: "/azk/#{manifest.dir}",
     command: "# command to run app",
     shell: "/bin/bash",
     mounts: {
       "/azk/#{manifest.dir}" : '.',
-      "/etc/nsswitch.conf"   : './mocker/#{system.name}-nsswitch.conf',
+      // "/etc/nsswitch.conf"   : './mocker/#{system.name}-nsswitch.conf',
       "/etc/resolver"        : './mocker/resolver',
       "/azk/build"           : persistent('build-#{system.name}'),
       "/azk/lib"             : '/usr/lib'
     },
     envs: envs,
-  };
-}
+  },
 
-// Adds the systems that shape your system
-systems({
-  ubuntu14: build_system("azukiapp/libnss-resolver:ubuntu14"),
-  ubuntu12: build_system("azukiapp/libnss-resolver:ubuntu12"),
-  fedora20: build_system("azukiapp/libnss-resolver:fedora20"),
+  ubuntu12: {
+    extends: "ubuntu14",
+    image: { dockerfile: "./Dockerfiles/ubuntu12" },
+  },
+
+  fedora20: {
+    extends: "ubuntu14",
+    image: { dockerfile: "./Dockerfiles/fedora20" },
+  },
 
   package: {
     image: { docker: "azukiapp/fpm" },
