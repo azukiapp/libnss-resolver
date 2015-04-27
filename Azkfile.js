@@ -19,7 +19,7 @@ systems({
     shell: "/bin/bash",
     mounts: {
       "/azk/#{manifest.dir}" : '.',
-      // "/etc/nsswitch.conf"   : './mocker/#{system.name}-nsswitch.conf',
+      "/etc/nsswitch.conf"   : './mocker/#{system.name}-nsswitch.conf',
       "/etc/resolver"        : './mocker/resolver',
       "/azk/build"           : persistent('build-#{system.name}'),
       "/azk/lib"             : '/usr/lib'
@@ -30,6 +30,11 @@ systems({
   ubuntu12: {
     extends: "ubuntu14",
     image: { dockerfile: "./Dockerfiles/ubuntu12" },
+  },
+
+  'debian8-0': {
+    extends: "ubuntu14",
+    image: { dockerfile: "./Dockerfiles/debian8.0" },
   },
 
   fedora20: {

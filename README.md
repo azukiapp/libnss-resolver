@@ -1,7 +1,6 @@
 # libnss-resolver
 
-A Linux extension that adds support to the `/etc/resolver/[suffix]`. It supports different "nameservers"
-to specific suffixes. It emulates the corresponding native functionality from Mac OS X.
+A Linux extension that adds support to the `/etc/resolver/[suffix]`. It supports different "nameservers" to specific suffixes. It emulates the corresponding native functionality from Mac OS X.
 
 This is still a work in progress!
 
@@ -24,11 +23,11 @@ $ git clone https://github.com/azukiapp-samples/libnss-resolver
 $ cd libnss-resolver
 
 # build
-# [so] options: ubuntu12, ubuntu14, fedora20
+# [so] options: debian8-0, ubuntu12, ubuntu14, fedora20
 $ azk shell [so]
 
 
-# using ubuntu12 or ubuntu14 as [so]:
+# using debian8-0, ubuntu12 or ubuntu14 as [so]:
 
 # run tests
 $ azk start dns # Run a mock dns server for testing
@@ -132,7 +131,7 @@ All of these tools are actually available behind the [azk][azk]. So just use the
 
 ```bash
 $ azk start dns
-# [so] options: ubuntu12, ubuntu14, fedora20
+# [so] options: debian8-0, ubuntu12, ubuntu14, fedora20
 $ azk shell [so] -t -c "scons local-install"
 # or, if [so] == fedora20
 $ azk shell [so] -t -c "scons local-install -Q prefix=/usr/lib64"
@@ -141,7 +140,7 @@ $ azk shell [so] -t -c "scons local-install -Q prefix=/usr/lib64"
 After that, the following scons targets are available:
 
 ```bash
-# using ubuntu12 or ubuntu14 as so
+# using debian8-0, ubuntu12 or ubuntu14 as so
 
 # build and run tests
 $ scons run-test -Q [define=DEBUG] [valgrind="valgrind options"]
