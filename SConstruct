@@ -62,7 +62,7 @@ cares_script = """
   cp $SOURCE/.libs/libcares.a $TARGET;
 """
 
-env.Download(cares_file, None, URL = cares_url)
+env.Download(cares_file, None, URL = cares_url, chdir=False)
 env.Unpack(cares_folder, cares_file, FLAGS = "zxf")
 cares = env.Command("%s/libcares.a" % build_dir, cares_folder, Action(cares_script));
 
