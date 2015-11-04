@@ -35,7 +35,7 @@ for key, value in ARGLIST:
 env.Append(CPPDEFINES = cppdefines)
 
 # dependencie cmocka
-cmocka_version  = "0.4.1"
+cmocka_version  = "1.0.1"
 cmocka_url      = "git.cryptomilk.org/projects/cmocka.git/snapshot/cmocka-%s.tar.xz" % cmocka_version
 cmocka_file     = "%s/cmocka-%s.tar.xz" % (build_dir, cmocka_version)
 cmocka_folder   = "%s/cmocka-%s" % (build_dir, cmocka_version)
