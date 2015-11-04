@@ -11,9 +11,9 @@ var envs = {
 
 // Adds the systems that shape your system
 systems({
-  ubuntu14: {
+  ubuntu12: {
     depends: ["dns"],
-    image: { dockerfile: "./Dockerfiles/ubuntu14" },
+    image: { dockerfile: "./Dockerfiles/ubuntu12" },
     workdir: "/azk/#{manifest.dir}",
     command: "# command to run app",
     shell: "/bin/bash",
@@ -27,19 +27,29 @@ systems({
     envs: envs,
   },
 
-  ubuntu12: {
-    extends: "ubuntu14",
-    image: { dockerfile: "./Dockerfiles/ubuntu12" },
+  ubuntu15: {
+    extends: "ubuntu12",
+    image: { dockerfile: "./Dockerfiles/ubuntu15" },
+  },
+
+  ubuntu14: {
+    extends: "ubuntu12",
+    image: { dockerfile: "./Dockerfiles/ubuntu14" },
   },
 
   'debian8-0': {
-    extends: "ubuntu14",
+    extends: "ubuntu12",
     image: { dockerfile: "./Dockerfiles/debian8.0" },
   },
 
   fedora20: {
-    extends: "ubuntu14",
+    extends: "ubuntu12",
     image: { dockerfile: "./Dockerfiles/fedora20" },
+  },
+
+  fedora23: {
+    extends: "ubuntu12",
+    image: { dockerfile: "./Dockerfiles/fedora23" },
   },
 
   package: {
@@ -58,6 +68,7 @@ systems({
     wait: false,
     ports: {
       dns: "53/udp",
+      80: disable,
     },
     envs: envs,
   },

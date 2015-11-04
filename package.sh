@@ -11,7 +11,7 @@ MAINTAINER="Everton Ribeiro <everton@azukiapp.com>"
 
 usage() {
   echo
-  echo "$0 [debian8-0|ubuntu14|ubuntu12|fedora20]"
+  echo "$0 [debian8-0|ubuntu15|ubuntu14|ubuntu12|fedora20|fedora23]"
   echo
   echo "    Uses fpm to build a package"
   echo
@@ -32,8 +32,7 @@ azk_shell() {
   PKG="${PKG}"
 
   case $system in
-    fedora20|centos7)
-      system="fedora20"
+    fedora20|fedora23)
       prefix=usr/lib64
       pkg_type=rpm
       fpm_extra_options=" \
@@ -41,7 +40,7 @@ azk_shell() {
         --rpm-user root --rpm-group root \
       "
       ;;
-    debian8-0|ubuntu12|ubuntu14)
+    debian8-0|ubuntu12|ubuntu14|ubuntu15)
       prefix=usr/lib
       pkg_type=deb
       fpm_extra_options=" \

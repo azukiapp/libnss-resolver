@@ -23,11 +23,11 @@ $ git clone https://github.com/azukiapp-samples/libnss-resolver
 $ cd libnss-resolver
 
 # build
-# [so] options: debian8-0, ubuntu12, ubuntu14, fedora20
+# [so] options: debian8-0, ubuntu12, ubuntu14, ubuntu15, fedora20, fedora23
 $ azk shell [so]
 
 
-# using debian8-0, ubuntu12 or ubuntu14 as [so]:
+# using debian8-0, ubuntu12, ubuntu14 or ubuntu15 as [so]:
 
 # run tests
 $ azk start dns # Run a mock dns server for testing
@@ -39,7 +39,7 @@ $ azk shell [so] -t -c "scons run-test -Q define=DEBUG"
 $ azk shell [so] -c "scons install"
 
 
-# using fedora20 as [so]:
+# using fedora20 or fedora23 as [so]:
 
 # run tests
 $ azk start dns # Run a mock dns server for testing
@@ -78,9 +78,9 @@ $ git clone https://github.com/azukiapp/libnss-resolver.git
 $ cd libnss-resolver
 
 # build
-$ scons install
+$ scons local-install
 # or, if you're using Fedora as SO
-$ scons install -Q prefix=/usr/lib64
+$ scons local-install -Q prefix=/usr/lib64
 ```
 
 Now you can add the resolver-nss in a resolution pipe:
@@ -131,16 +131,16 @@ All of these tools are actually available behind the [azk][azk]. So just use the
 
 ```bash
 $ azk start dns
-# [so] options: debian8-0, ubuntu12, ubuntu14, fedora20
+# [so] options: debian8-0, ubuntu12, ubuntu14, fedora20, fedora23
 $ azk shell [so] -t -c "scons local-install"
-# or, if [so] == fedora20
+# or, if [so] == fedora20 or fedora23
 $ azk shell [so] -t -c "scons local-install -Q prefix=/usr/lib64"
 ```
 
 After that, the following scons targets are available:
 
 ```bash
-# using debian8-0, ubuntu12 or ubuntu14 as so
+# using debian8-0, ubuntu12, ubuntu14 or ubuntu15 as so
 
 # build and run tests
 $ scons run-test -Q [define=DEBUG] [valgrind="valgrind options"]
@@ -150,7 +150,7 @@ $ scons local-install
 $ ping test.resolver
 
 
-# using fedora20 as so
+# using fedora20 or fedora23 as so
 
 # build and run tests
 $ scons run-test -Q prefix=/usr/lib64 -Q [define=DEBUG] [valgrind="valgrind options"]
