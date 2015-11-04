@@ -1,8 +1,10 @@
-FROM dockerfile/python
+FROM ubuntu:14.04
 MAINTAINER Everton Ribeiro <everton@azukiapp.com>
 
-RUN apt-get update -y
-RUN apt-get install -y \
+RUN apt-get -y update \
+  && apt-get install -y \
                     scons cmake automake autoconf ghostscript \
                     clang valgrind \
-                    dnsutils
+                    git wget xz-utils dnsutils \
+  && apt-get clean -qq \
+  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
