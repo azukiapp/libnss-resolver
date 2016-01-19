@@ -96,8 +96,11 @@ struct hostent *nssrs_resolver_by_servers(char *name, char *nameserver) {
     }
 
     optmask = ARES_OPT_SERVERS | ARES_OPT_UDP_PORT;
+    memset(&options, 0, sizeof(options));
     options.servers  = NULL;
     options.nservers = 0;
+    options.tcp_port = 53;
+    options.udp_port = 53;
     options.flags    = ARES_FLAG_NOCHECKRESP;
 
     status = ares_init_options(&channel, &options, optmask);
