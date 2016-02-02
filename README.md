@@ -2,7 +2,7 @@
 
 A Linux extension that adds support to the `/etc/resolver/[suffix]`. It supports different "nameservers" to specific suffixes. It emulates the corresponding native functionality from Mac OS X.
 
-This is still a work in progress!
+**Disclaimer:** This is still a work in progress!
 
 ## Installing
 
@@ -10,11 +10,19 @@ This is still a work in progress!
 
 Download and install the appropriate package for your Linux distribution [here](https://github.com/azukiapp/libnss-resolver/releases).
 
-### From the source (with azk)
+Supported Linux distributions and its versions:
 
-First: install [https://azk.io][azk].
+- Debian 8.0;
+- Fedora 20-23;
+- Ubuntu 12.04 (precise), 14.04 (trusty) and 15.10 (wily);
 
-And after that:
+### From the source (using azk)
+
+**Note:** Currently, `libnss-resolver` is a dependency of `azk` for Linux. If you already have `azk` installed, you can use it to update `libnss-resolver` with your changes. Otherwise, refer to [installing libnss-resolver from source without azk](https://github.com/azukiapp/libnss-resolver#from-the-source-without-azk).
+
+Initially, install [azk](http://docs.azk.io/en/installation).
+
+Then run:
 
 ```bash
 $ git clone git@github.com:azukiapp/libnss-resolver.git
@@ -51,75 +59,71 @@ $ azk shell [so] -t -c "scons run-test -Q define=DEBUG -Q prefix=/usr/lib64"
 $ azk shell [so] -c "scons install -Q prefix=/usr/lib64"
 ```
 
-Now you can add the resolver-nss in a resolution pipe:
+### From the source (without azk)
+
+**Dependencies:** `scons`, `clang` and `wget`.
+
+```bash
+$ git clone https://github.com/azukiapp/libnss-resolver.git
+$ cd libnss-resolver
+
+# build, except for Fedora
+$ scons local-install
+
+# or, if you're using Fedora as SO
+$ scons local-install -Q prefix=/usr/lib64
+```
+
+## Configuring
+
+After installing, you can add the resolver-nss in a resolution pipe:
 
 ```bash
 $ sudo sed -i -re 's/^(hosts: .*files)(.*)$/\1 resolver\2/' /etc/nsswitch.conf
 ```
 
-or edit `/etc/nsswitch.conf`:
+or manually edit `/etc/nsswitch.conf`:
 
 ```bash
 # normally   ↓
 hosts: files resolver dns
+
 # but, if you have avahi (Zeroconf) installed
 #            ↓
-hosts: files resolver mdns4_minimal [NOTFOUND=return] dns mdns4 resolver
+hosts: files resolver mdns4_minimal [NOTFOUND=return] dns mdns4
 ```
 
-### From the source (without azk)
-
-Dependencies: scons and clang
-
-```bash
-$ git clone git@github.com:azukiapp/libnss-resolver.git
-# or
-$ git clone https://github.com/azukiapp/libnss-resolver.git
-$ cd libnss-resolver
-
-# build
-$ scons local-install
-# or, if you're using Fedora as SO
-$ scons local-install -Q prefix=/usr/lib64
-```
-
-Now you can add the resolver-nss in a resolution pipe:
-
-```bash
-$ sudo sed -i -re 's/^(hosts: .*$)/\1 resolver/' /etc/nsswitch.conf
-```
-
-or edit `/etc/nsswitch.conf`:
-
-```bash
-# normally   ↓
-hosts: files resolver dns
-# but, if you have avahi (Zeroconf) installed
-#            ↓
-hosts: files resolver mdns4_minimal [NOTFOUND=return] dns mdns4 resolver
-```
-
-## Configuring
-
-After installing you can create many `suffix` zones in `/etc/resolver/`, like:
+Then create your `suffix` zones in `/etc/resolver/`, like:
 
 ```bash
 $ echo "nameserver 127.0.0.1:5353" | sudo tee -a /etc/resolver/test.resolver
 ```
 
+## Testing
+
 Installing dnsmasq is a good way to test it:
 
 ```bash
-$ sudo yum install dnsmasq
+# Ubuntu:
+$ sudo apt-get install dnsmasq
+
+# Fedora:
+$ sudo dnf install dnsmasq
+```
+
+Then you can start `dnsmasq` as DNS lookup service:
+
+```bash
 $ dnsmasq --bind-interfaces -p 5353 --no-daemon --address=/test.resolver/127.0.0.1
 ```
 
-Now you can try this:
+Now you can try pinging the `test.resolver` domain:
 
 ```bash
 # ping sufix
 $ ping test.resolver
-# or any "subdomain"
+
+# ping a subdomain
 $ ping any.test.resolver
 ```
 
