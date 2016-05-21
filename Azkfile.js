@@ -27,6 +27,11 @@ systems({
     envs: envs,
   },
 
+  ubuntu16: {
+    extends: "ubuntu12",
+    image: { dockerfile: "./Dockerfiles/ubuntu16" },
+  },
+
   ubuntu15: {
     extends: "ubuntu12",
     image: { dockerfile: "./Dockerfiles/ubuntu15" },

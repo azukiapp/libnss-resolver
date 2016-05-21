@@ -23,11 +23,11 @@ $ git clone https://github.com/azukiapp-samples/libnss-resolver
 $ cd libnss-resolver
 
 # build
-# [so] options: debian8-0, ubuntu12, ubuntu14, ubuntu15, fedora20, fedora23
+# [so] options: debian8-0, ubuntu[12|14|15|16], fedora20, fedora23
 $ azk shell [so]
 
 
-# using debian8-0, ubuntu12, ubuntu14 or ubuntu15 as [so]:
+# using ubuntu[12|14|15|16] or debian8-0 as [so]:
 
 # run tests
 $ azk start dns # Run a mock dns server for testing
