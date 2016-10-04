@@ -17,15 +17,16 @@
 
 #define ALIGN(a) (((a+sizeof(void*)-1)/sizeof(void*))*sizeof(void*))
 
-static void
+static int
 pack_hostent(struct hostent *result,
         char *buffer,
         size_t buflen,
-        const char *name,
-        const void *addr)
+        const struct hostent *hent)
 {
-    char *aliases, *r_addr, *addrlist;
-    size_t l, idx;
+    const char *name = hent->h_name;
+    const void *addr = hent->h_addr_list[0];
+    char **aliases, *r_addr, *addrlist;
+    size_t l, idx, aidx;
 
     /* we can't allocate any memory, the buffer is where we need to
      * return things we want to use
@@ -38,12 +39,23 @@ pack_hostent(struct hostent *result,
 
     idx = ALIGN (l+1);
 
-    /* 2nd, the empty aliases array */
-    aliases = buffer + idx;
-    *(char **) aliases = NULL;
-    idx += sizeof (char*);
+    /* 2nd, the aliases array */
+    aliases = (char **)buffer + idx;
+    int alias_cnt = 0;
+    for(char** alias = hent->h_aliases; hent->h_aliases != NULL && *alias != NULL; alias++) alias_cnt++;
+    idx += (alias_cnt+1) * sizeof(void*);
+    for(alias_cnt = 0; hent->h_aliases != NULL && hent->h_aliases[alias_cnt] != NULL; alias_cnt++)
+    {
+    	if(idx >= buflen)
+    		return NSS_STATUS_TRYAGAIN;
+    	aliases[alias_cnt] = buffer + idx;
+    	l = strlen(hent->h_aliases[alias_cnt]) + 1;
+    	memcpy(aliases[alias_cnt], hent->h_aliases[alias_cnt], l);
+    	idx += l;
+    }
+    aliases[alias_cnt] = NULL;
+    result->h_aliases = aliases;
 
-    result->h_aliases = (char **) aliases;
 
     result->h_addrtype = AF_INET;
     result->h_length = sizeof (struct in_addr);
@@ -55,10 +67,12 @@ pack_hostent(struct hostent *result,
 
     /* 4th, the addresses ptr array */
     addrlist = buffer + idx;
+    //FIXME
     ((char **) addrlist)[0] = r_addr;
     ((char **) addrlist)[1] = NULL;
 
     result->h_addr_list = (char **) addrlist;
+    return NSS_STATUS_SUCCESS;
 }
 
 enum nss_status
@@ -89,10 +103,10 @@ _nss_resolver_gethostbyname2_r (const char *name,
         return NSS_STATUS_NOTFOUND;
     }
 
-    pack_hostent(result, buffer, buflen, name, hosts->h_addr_list[0]);
+    int ok = pack_hostent(result, buffer, buflen, hosts);
     ares_free_hostent(hosts);
 
-    return NSS_STATUS_SUCCESS;
+    return ok;
 }
 
 enum nss_status
@@ -122,7 +136,6 @@ _nss_resolver_gethostbyaddr_r (const void *addr,
         int *errnop,
         int *h_errnop)
 {
-
     if (af != AF_INET) {
         *errnop = EAFNOSUPPORT;
         *h_errnop = NO_DATA;
@@ -135,7 +148,31 @@ _nss_resolver_gethostbyaddr_r (const void *addr,
         return NSS_STATUS_UNAVAIL;
     }
 
-    *errnop = EAFNOSUPPORT;
-    *h_errnop = NO_DATA;
-    return NSS_STATUS_UNAVAIL;
+	const struct in_addr *address = addr;
+	char addrstr[INET6_ADDRSTRLEN];
+	
+	sprintf(addrstr, "%s", inet_ntoa(*address));
+    debug("Query libnss-resolver: %s - %s", NSSRS_DEFAULT_FOLDER, addrstr);
+
+    struct hostent *hosts = nssrs_resolve(NSSRS_DEFAULT_FOLDER, addrstr);
+
+    if (!hosts || hosts->h_name == NULL) {
+        *errnop = ENOENT;
+        *h_errnop = HOST_NOT_FOUND;
+        if (hosts) {
+            ares_free_hostent(hosts);
+        }
+        debug("Host not found");
+        return NSS_STATUS_NOTFOUND;
+    }
+
+    int ok = pack_hostent(result, buffer, buflen, hosts);
+    ares_free_hostent(hosts);
+    
+    if(ok == NSS_STATUS_TRYAGAIN)
+    {
+    	*errnop = ERANGE;
+    	*h_errnop = TRY_AGAIN;
+    }
+    return ok;
 }

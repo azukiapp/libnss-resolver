@@ -39,7 +39,7 @@ static char **copy_list(char **list) {
         count++;
     }
 
-    debug("list size: %d\n", count);
+    debug("list size: %d", count);
     new_list = malloc((count+1) * sizeof(char *));
     for (p = list; *p; p++) {
         new_list[index] = malloc(sizeof(struct in_addr));
@@ -53,12 +53,24 @@ static char **copy_list(char **list) {
     return new_list;
 }
 
+static char ** copy_string_list(char ** list)
+{
+	char ** new_list = NULL;
+	int count = 0;
+	for(char** s = list; list != NULL && *s != NULL; s++) count++;
+	new_list = malloc((count+1) * sizeof(char*));
+	for(count = 0; list != NULL && list[count] != NULL; count++)
+		new_list[count] = strdup(list[count]);
+	new_list[count] = NULL;
+	return new_list;
+}
+
 void nssrs_copy_hostent(struct hostent *from, struct hostent *to) {
     if (from->h_name != NULL) {
         to->h_name = strdup(from->h_name);
         to->h_addrtype  = from->h_addrtype;
         to->h_length    = from->h_length;
-        to->h_aliases   = copy_list(from->h_aliases);
+        to->h_aliases   = copy_string_list(from->h_aliases);
         to->h_addr_list = copy_list(from->h_addr_list);
     }
 }
@@ -88,6 +100,7 @@ struct hostent *nssrs_resolver_by_servers(char *name, char *nameserver) {
     int status, optmask = 0;
     struct ares_options options;
     struct hostent *results;
+    struct in_addr inet_address;
 
     status = ares_library_init(ARES_LIB_INIT_ALL);
     if (status != ARES_SUCCESS) {
@@ -95,9 +108,12 @@ struct hostent *nssrs_resolver_by_servers(char *name, char *nameserver) {
         return NULL;
     }
 
-    optmask = ARES_OPT_SERVERS | ARES_OPT_UDP_PORT;
+    optmask = ARES_OPT_SERVERS | ARES_OPT_UDP_PORT | ARES_OPT_TCP_PORT;
+    memset(&options, 0, sizeof(options));
     options.servers  = NULL;
     options.nservers = 0;
+    options.tcp_port = 53;
+    options.udp_port = 53;
     options.flags    = ARES_FLAG_NOCHECKRESP;
 
     status = ares_init_options(&channel, &options, optmask);
@@ -117,10 +133,21 @@ struct hostent *nssrs_resolver_by_servers(char *name, char *nameserver) {
     // Wait resolver
     results = malloc(sizeof(struct hostent));
     nssrs_init_hostent(results);
-    ares_gethostbyname(channel, name, AF_INET, &callback, results);
+    if(inet_aton(name, &inet_address) != 0)
+    {
+    	ares_gethostbyaddr(channel, &inet_address, sizeof(inet_address), AF_INET, &callback, results);
+    }
+    else
+    {
+	    ares_gethostbyname(channel, name, AF_INET, &callback, results);
+	}
     wait_ares(channel);
     ares_destroy(channel);
     ares_library_cleanup();
+
+	debug("h_name: %s", results->h_name);
+	for(char** alias = results->h_aliases; results->h_aliases != NULL && *alias != NULL; alias++)
+		debug("h_alias: %s", *alias);
 
     if (results->h_name != NULL) {
         return results;
@@ -132,7 +159,33 @@ struct hostent *nssrs_resolver_by_servers(char *name, char *nameserver) {
 
 struct hostent *nssrs_resolve(char *folder, char *domain) {
     struct hostent *results = NULL;
-    char *file = nssrs_getfile_by_sufix(folder, domain);
+    char *file;
+    struct in_addr inet_address;
+    
+    if(inet_aton(domain, &inet_address))
+    {
+    	/* Make PTR address from IPv4 */
+    	char ptraddr[29];
+    	memset(ptraddr, 0, sizeof(ptraddr));
+    	char *dot = domain + strlen(domain);
+    	while(dot >= domain)
+    	{
+    		if(dot[0] == '.' || dot == domain)
+    		{
+	    		char *octet = dot + 1;
+    			if(dot == domain) octet = domain;
+    			int len = (char*)strchrnul(octet, '.') - octet + 2;
+	    		snprintf(ptraddr + strlen(ptraddr), len, "%s.", octet);
+	    	}
+	    	dot--;
+    	}
+    	strcat(ptraddr, "in-addr.arpa");
+    	file = nssrs_getfile_by_sufix(folder, ptraddr);
+    }
+    else
+    {
+    	file = nssrs_getfile_by_sufix(folder, domain);
+    }
 
     if (file) {
         debug("resolver file: %s", file);
@@ -150,7 +203,7 @@ struct hostent *nssrs_resolve(char *folder, char *domain) {
 
                 for (i = 0; results->h_addr_list[i]; ++i) {
                     inet_ntop(results->h_addrtype, results->h_addr_list[i], ip, sizeof(ip));
-                    debug("ip: %s\n", ip);
+                    debug("ip: %s", ip);
                 }
             }
 #endif

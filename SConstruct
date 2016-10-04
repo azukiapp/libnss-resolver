@@ -76,7 +76,7 @@ so = env.SharedLibrary("%s/libnss_resolver" % build_dir, Glob("src/*c"),
 install_dirs = {
     'pack' : ARGUMENTS.get('pack_prefix', '%s/libnss/usr/lib' % build_dir),
     'local': ARGUMENTS.get('prefix', '/usr/lib'),
-    'azk'  : '/azk/lib'
+    'azk'  : './azk/lib'
 }
 
 for k,v in install_dirs.items():
@@ -109,5 +109,5 @@ env.Alias('cares'  , cares)
 env.Alias('cmocka' , cmocka)
 env.Alias('test'   , cares + cmocka + test_app)
 env.Alias('pack'   , cares + so_pack)
-env.Alias('install', cares + ['/azk/lib'])
+env.Alias('install', cares + ['./azk/lib'])
 env.Alias('local-install', cares + [install_dirs['local']])
